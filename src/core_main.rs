@@ -22,6 +22,52 @@ macro_rules! my_println{
     };
 }
 
+use chrono::{DateTime, Utc, NaiveDate};
+use serde::Deserialize;
+use reqwest::blocking::Client; // 使用同步客户端
+use std::error::Error;
+
+#[derive(Deserialize)]
+struct TimeResponse {
+    unixtime: i64,
+}
+
+fn get_install_timestamp() -> i64 {
+    let install_date = NaiveDate::from_ymd(2024, 1, 1);
+    let install_time: DateTime<Utc> = DateTime::<Utc>::from_utc(
+        install_date.and_hms(0, 0, 0),
+        Utc,
+    );
+    install_time.timestamp()
+}
+
+fn get_current_timestamp_from_internet() -> Result<i64, Box<dyn Error>> {
+    let client: Client = Client::new();
+    let response = client.get("http://worldtimeapi.org/api/timezone/Etc/UTC")
+        .send()?;
+
+    // 读取响应体为字符串
+    let body: String = response.text()?;
+    // 解析JSON字符串
+    let res: TimeResponse = serde_json::from_str(&body)?;
+
+    Ok(res.unixtime)
+}
+
+fn is_trial_expired(install_timestamp: i64, trial_days: i64) -> bool {
+    match get_current_timestamp_from_internet() {
+        Ok(current_timestamp) => {
+            let seconds_diff: i64 = current_timestamp - install_timestamp;
+            let days_diff: i64 = seconds_diff / (60 * 60 * 24);
+            days_diff > trial_days
+        },
+        Err(e) => {
+            eprintln!("无法获取当前时间，程序将退出: {}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
 /// shared by flutter and sciter main function
 ///
 /// [Note]
@@ -29,9 +75,9 @@ macro_rules! my_println{
 /// If it returns [`Some`], then the process will continue, and flutter gui will be started.
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub fn core_main() -> Option<Vec<String>> {
-    if !crate::common::global_init() {
-        return None;
-    }
+//     if !crate::common::global_init() {
+//         return None;
+//     }
     crate::load_custom_client();
     #[cfg(windows)]
     if !crate::platform::windows::bootstrap() {
@@ -240,13 +286,13 @@ pub fn core_main() -> Option<Vec<String>> {
                         }
                     },
                 };
-                Toast::new(Toast::POWERSHELL_APP_ID)
-                    .title(&config::APP_NAME.read().unwrap())
-                    .text1(&translate(text))
-                    .sound(Some(Sound::Default))
-                    .duration(Duration::Short)
-                    .show()
-                    .ok();
+//                 Toast::new(Toast::POWERSHELL_APP_ID)
+//                     .title(&config::APP_NAME.read().unwrap())
+//                     .text1(&translate(text))
+//                     .sound(Some(Sound::Default))
+//                     .duration(Duration::Short)
+//                     .show()
+//                     .ok();
                 return None;
             } else if args[0] == "--after-install" {
                 if let Err(err) = platform::run_after_install() {
@@ -274,13 +320,13 @@ pub fn core_main() -> Option<Vec<String>> {
                         translate("Installation failed!".to_string())
                     }
                 };
-                Toast::new(Toast::POWERSHELL_APP_ID)
-                    .title(&config::APP_NAME.read().unwrap())
-                    .text1(&text)
-                    .sound(Some(Sound::Default))
-                    .duration(Duration::Short)
-                    .show()
-                    .ok();
+//                 Toast::new(Toast::POWERSHELL_APP_ID)
+//                     .title(&config::APP_NAME.read().unwrap())
+//                     .text1(&text)
+//                     .sound(Some(Sound::Default))
+//                     .duration(Duration::Short)
+//                     .show()
+//                     .ok();
                 return None;
             } else if args[0] == "--uninstall-cert" {
                 #[cfg(windows)]
