@@ -1762,8 +1762,6 @@ impl Connection {
                 self.send(msg_out).await;
             }
 
-            try_activate_screen();
-
             match super::display_service::update_get_sync_displays_on_login().await {
                 Err(err) => {
                     res.set_error(format!("{}", err));
@@ -5280,6 +5278,10 @@ async fn start_ipc(
         #[allow(unused_mut)]
         #[allow(unused_assignments)]
         let mut args = vec!["--cm"];
+        #[cfg(target_os = "windows")]
+        {
+            args = vec!["--cm-no-ui"];
+        }
         #[allow(unused_mut)]
         #[cfg(target_os = "linux")]
         let mut user = None;
@@ -5465,16 +5467,6 @@ async fn start_ipc(
             }
         }
     }
-}
-
-// in case screen is sleep and blank, here to activate it
-fn try_activate_screen() {
-    #[cfg(windows)]
-    std::thread::spawn(|| {
-        mouse_move_relative(-6, -6);
-        std::thread::sleep(std::time::Duration::from_millis(30));
-        mouse_move_relative(6, 6);
-    });
 }
 
 pub enum AlarmAuditType {
