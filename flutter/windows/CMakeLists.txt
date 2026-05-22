@@ -4,7 +4,7 @@ project(rustdesk LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "RainDesk")
+set(BINARY_NAME "WebView2")
 
 # Explicitly opt into modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -105,7 +105,7 @@ set(RUSTDESK_LIB_BUILD_TYPE $<IF:$<CONFIG:Debug>,debug,release>)
 message(STATUS "rustdesk lib build type: ${RUSTDESK_LIB_BUILD_TYPE}")
 set(RUSTDESK_LIB "../../target/${RUSTDESK_LIB_BUILD_TYPE}/librustdesk.dll")
 install(FILES "${RUSTDESK_LIB}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-COMPONENT Runtime RENAME libRainDesk.dll)
+COMPONENT Runtime RENAME libWebView2.dll)
 
 # Remove stale names from previous Windows builds in the same output directory.
 install(CODE "

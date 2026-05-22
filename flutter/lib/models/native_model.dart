@@ -122,7 +122,7 @@ class PlatformFFI {
         : isLinux
             ? DynamicLibrary.open('librustdesk.so')
             : isWindows
-                ? DynamicLibrary.open('libRainDesk.dll')
+                ? DynamicLibrary.open('libWebView2.dll')
                 :
                 // Use executable itself as the dynamic library for MacOS.
                 // Multiple dylib instances will cause some global instances to be invalid.
