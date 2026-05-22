@@ -65,6 +65,9 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_svcStopped.value) {
+      start_service(true).then((result) {}).catchError((error) {});
+    }
     final isIncomingOnly = bind.isIncomingOnly();
     startServiceWidget() => Offstage(
           offstage: !_svcStopped.value,
@@ -72,9 +75,9 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                   onTap: () async {
                     await start_service(true);
                   },
-                  child: Text(translate("Start service"),
+                  child: Text(translate("Start service>DEBUG"),
                       style: TextStyle(
-                          decoration: TextDecoration.underline, fontSize: em)))
+                          fontSize: em)))//decoration: TextDecoration.underline,
               .marginOnly(left: em),
         );
 

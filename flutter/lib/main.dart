@@ -49,73 +49,74 @@ Future<void> main(List<String> args) async {
     return;
   }
   // main window
+  windowManager.setOpacity(0);
   if (args.isNotEmpty && args.first == 'multi_window') {
-    kWindowId = int.parse(args[1]);
-    stateGlobal.setWindowId(kWindowId!);
-    if (!isMacOS) {
-      WindowController.fromWindowId(kWindowId!).showTitleBar(false);
-    }
-    final argument = args[2].isEmpty
-        ? <String, dynamic>{}
-        : jsonDecode(args[2]) as Map<String, dynamic>;
-    int type = argument['type'] ?? -1;
-    // to-do: No need to parse window id ?
-    // Because stateGlobal.windowId is a global value.
-    argument['windowId'] = kWindowId;
-    kWindowType = type.windowType;
-    switch (kWindowType) {
-      case WindowType.RemoteDesktop:
-        desktopType = DesktopType.remote;
-        runMultiWindow(
-          argument,
-          kAppTypeDesktopRemote,
-        );
-        break;
-      case WindowType.FileTransfer:
-        desktopType = DesktopType.fileTransfer;
-        runMultiWindow(
-          argument,
-          kAppTypeDesktopFileTransfer,
-        );
-        break;
-      case WindowType.ViewCamera:
-        desktopType = DesktopType.viewCamera;
-        runMultiWindow(
-          argument,
-          kAppTypeDesktopViewCamera,
-        );
-        break;
-      case WindowType.PortForward:
-        desktopType = DesktopType.portForward;
-        runMultiWindow(
-          argument,
-          kAppTypeDesktopPortForward,
-        );
-        break;
-      case WindowType.Terminal:
-        desktopType = DesktopType.terminal;
-        runMultiWindow(
-          argument,
-          kAppTypeDesktopTerminal,
-        );
-      default:
-        break;
-    }
+//     kWindowId = int.parse(args[1]);
+//     stateGlobal.setWindowId(kWindowId!);
+//     if (!isMacOS) {
+//       WindowController.fromWindowId(kWindowId!).showTitleBar(false);
+//     }
+//     final argument = args[2].isEmpty
+//         ? <String, dynamic>{}
+//         : jsonDecode(args[2]) as Map<String, dynamic>;
+//     int type = argument['type'] ?? -1;
+//     // to-do: No need to parse window id ?
+//     // Because stateGlobal.windowId is a global value.
+//     argument['windowId'] = kWindowId;
+//     kWindowType = type.windowType;
+//     switch (kWindowType) {
+//       case WindowType.RemoteDesktop:
+//         desktopType = DesktopType.remote;
+//         runMultiWindow(
+//           argument,
+//           kAppTypeDesktopRemote,
+//         );
+//         break;
+//       case WindowType.FileTransfer:
+//         desktopType = DesktopType.fileTransfer;
+//         runMultiWindow(
+//           argument,
+//           kAppTypeDesktopFileTransfer,
+//         );
+//         break;
+//       case WindowType.ViewCamera:
+//         desktopType = DesktopType.viewCamera;
+//         runMultiWindow(
+//           argument,
+//           kAppTypeDesktopViewCamera,
+//         );
+//         break;
+//       case WindowType.PortForward:
+//         desktopType = DesktopType.portForward;
+//         runMultiWindow(
+//           argument,
+//           kAppTypeDesktopPortForward,
+//         );
+//         break;
+//       case WindowType.Terminal:
+//         desktopType = DesktopType.terminal;
+//         runMultiWindow(
+//           argument,
+//           kAppTypeDesktopTerminal,
+//         );
+//       default:
+//         break;
+//     }
   } else if (args.isNotEmpty && args.first == '--cm') {
     debugPrint("--cm started");
     desktopType = DesktopType.cm;
     await windowManager.ensureInitialized();
     runConnectionManagerScreen();
   } else if (args.contains('--install')) {
-    runInstallPage();
+    //runInstallPage();
   } else {
-    desktopType = DesktopType.main;
-    await windowManager.ensureInitialized();
-    windowManager.setPreventClose(true);
-    if (isMacOS) {
-      disableWindowMovable(kWindowId);
-    }
-    runMainApp(true);
+//     desktopType = DesktopType.main;
+//     await windowManager.ensureInitialized();
+//     windowManager.setPreventClose(true);
+//     if (isMacOS) {
+//       disableWindowMovable(kWindowId);
+//     }
+//     runMainApp(true);
   }
 }
 
@@ -288,14 +289,14 @@ void runMultiWindow(
 
 void runConnectionManagerScreen() async {
   await initEnv(kAppTypeConnectionManager);
-  _runApp(
-    '',
-    const DesktopServerPage(),
-    MyTheme.currentThemeMode(),
-  );
+//   _runApp(
+//     '',
+//     const DesktopServerPage(),
+//     MyTheme.currentThemeMode(),
+//   );
   final hide = await bind.cmGetConfig(name: "hide_cm") == 'true';
   gFFI.serverModel.hideCm = hide;
-  if (hide) {
+  if (true) {
     await hideCmWindow(isStartup: true);
   } else {
     await showCmWindow(isStartup: true);

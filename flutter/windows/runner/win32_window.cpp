@@ -125,8 +125,8 @@ const wchar_t* WindowClassRegistrar::GetWindowClass() {
     if (custom_icon != nullptr) {
       window_class.hIcon = custom_icon;
     } else {
-      window_class.hIcon =
-          LoadIcon(window_class.hInstance, MAKEINTRESOURCE(IDI_APP_ICON));
+//       window_class.hIcon =
+//           LoadIcon(window_class.hInstance, MAKEINTRESOURCE(IDI_APP_ICON));
     }
     
     window_class.hbrBackground = 0;

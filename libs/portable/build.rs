@@ -2,8 +2,8 @@ fn main() {
     #[cfg(windows)]
     {
         use std::io::Write;
-        let mut res = winres::WindowsResource::new();
-        res.set_icon("../../res/icon.ico")
+        let mut res:WindowsResource = winres::WindowsResource::new();
+        res WindowsResource
             .set_language(winapi::um::winnt::MAKELANGID(
                 winapi::um::winnt::LANG_ENGLISH,
                 winapi::um::winnt::SUBLANG_ENGLISH_US,
